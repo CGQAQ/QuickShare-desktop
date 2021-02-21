@@ -1,6 +1,6 @@
-import { ipcRenderer } from "electron";
-import { Observable } from "rxjs";
-import { IPCChannels, HTTPCreatedPayload } from "./types";
+import { ipcMain, ipcRenderer } from "electron";
+import { Observable, Subject } from "rxjs";
+import { IPCChannels, HTTPCreatedPayload, QSEvent } from "./types";
 
 export const httpServerCreatedObserverable = new Observable((sub) => {
   ipcRenderer.on(
@@ -11,4 +11,10 @@ export const httpServerCreatedObserverable = new Observable((sub) => {
   );
 });
 
-export function start() {}
+export const evHub = new Subject<QSEvent>();
+
+export function start() {
+  ipcRenderer.on(IPCChannels.IPCHomeDir, (ev, path: string) => {
+    evHub.next({ type: "defaultPath", payload: path });
+  });
+}
