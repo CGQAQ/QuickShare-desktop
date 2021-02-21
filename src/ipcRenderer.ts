@@ -1,14 +1,14 @@
 import { ipcRenderer } from "electron";
+import { Observable } from "rxjs";
 import { IPCChannels, HTTPCreatedPayload } from "./types";
 
-export function start() {
-  function* httpCreated() {
-    let result: HTTPCreatedPayload = null;
-    ipcRenderer.on(
-      IPCChannels.IPCHTTPCreated,
-      (ev, payload: HTTPCreatedPayload) => {
-        result = payload;
-      }
-    );
-  }
-}
+export const httpServerCreatedObserverable = new Observable((sub) => {
+  ipcRenderer.on(
+    IPCChannels.IPCHTTPCreated,
+    (_, payload: HTTPCreatedPayload) => {
+      sub.next(payload);
+    }
+  );
+});
+
+export function start() {}

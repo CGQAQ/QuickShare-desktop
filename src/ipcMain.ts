@@ -1,9 +1,10 @@
-import { ipcMain } from "electron";
+import { ipcMain, ipcRenderer } from "electron";
 import Express from "express";
 import { Server } from "ws";
 import { networkInterfaces } from "os";
+import { HTTPCreatedPayload, IPCChannels } from "./types";
 
-function getLocalAddr() {
+function getLocalAddr(): Record<string, string> {
   const nets = networkInterfaces();
   const results = Object.create(null); // Or just '{}', an empty object
 
@@ -27,7 +28,12 @@ function initHttpServer() {
     console.log(req.query);
     res.write("hello world");
   });
-  express.listen(59230, "0.0.0.0");
+  express.listen(59230, "0.0.0.0", () => {
+    const addr = getLocalAddr();
+    ipcMain.emit(IPCChannels.IPCHTTPCreated, {
+      addr: Object.values(addr)[0][0],
+    } as HTTPCreatedPayload);
+  });
 }
 
 export function start() {
